@@ -2,4 +2,6 @@
 .env
 __pycache__/
 *.pyc
-data/
+data_original/
+data/gold/
+data/user/
