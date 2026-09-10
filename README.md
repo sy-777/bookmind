@@ -60,11 +60,10 @@ bookmind/
 ├── rag/
 │   ├── retriever.py                    # EnsembleRetriever (BM25 + FAISS)
 │   └── reranker.py                     # CrossEncoder 리랭커
-├── embedding/
-│   └── faiss_load.py                   # FAISS 인덱스 로드
-├── preprocessing_silver_gold_chunking/
+├── scripts/
 │   ├── bronze_to_silver.py             # Bronze → Silver 전처리
-│   └── silver_to_gold_chunking.py      # Silver → Gold 청킹
+│   ├── silver_to_gold_chunking.py      # Silver → Gold 청킹
+│   └── faiss_load.py                   # FAISS 인덱스 로드
 ├── streamlit/
 │   └── app.py                          # Streamlit UI                            
 └── README.md
@@ -89,6 +88,8 @@ git clone <repo-url>
 cd bookmind
 
 # 2. 패키지 설치
+# (GPU 없이 실행 시, 무거운 CUDA 패키지 다운로드를 피하려면 먼저 CPU 버전 torch 설치)
+pip install torch --index-url https://download.pytorch.org/whl/cpu
 pip install -r requirements.txt
 
 # 3. .env 파일 생성 후 OpenAI API 키 등록

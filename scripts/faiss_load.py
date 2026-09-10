@@ -32,9 +32,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-BASE_DIR   = os.path.dirname(os.path.abspath(__file__))
-GOLD_DIR   = os.path.join(BASE_DIR, "data", "gold")
-FAISS_DIR  = os.path.join(BASE_DIR, "data", "faiss")
+GOLD_DIR   = "data/gold"
+FAISS_DIR  = "data/faiss"
 INDEX_PATH = os.path.join(FAISS_DIR, "index.faiss")
 CHUNKS_PATH = os.path.join(FAISS_DIR, "chunks.json")
 
