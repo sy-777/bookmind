@@ -44,7 +44,7 @@ Streamlit UI
 
 - **LLM / Orchestration**: LangGraph, LangChain
 - **임베딩**: BAAI/bge-m3
-- **리랭커**: BAAI/bge-reranker-v2-m3
+- **리랭커**: BAAI/bge-reranker-base
 - **벡터 검색**: FAISS
 - **UI**: Streamlit
 - **데이터 소스**: 서점사이트 베스트 도서 크롤링 (경제/경영, 시/에세이, 자기계발, 소설, 인문 5개 장르, 장르당 100권 총 500권)
