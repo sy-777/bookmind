@@ -21,7 +21,7 @@ BookMind CrossEncoder 기반 Reranker
 
 from sentence_transformers import CrossEncoder
 
-RERANKER_MODEL = "BAAI/bge-reranker-v2-m3"  # 한국어 지원, bge-reranker-base보다 성능 좋음
+RERANKER_MODEL = "BAAI/bge-reranker-base"  # 한국어 지원, v2-m3보다 가벼움 (메모리 제약 환경용)
 
 
 class BookMindReranker:

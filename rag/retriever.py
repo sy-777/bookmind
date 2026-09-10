@@ -39,7 +39,7 @@ TYPE_QUOTA = {
     "extra":      1,
 }
 
-RERANKER_MODEL = "BAAI/bge-reranker-v2-m3"
+RERANKER_MODEL = "BAAI/bge-reranker-base"
 
 
 class BookMindRetriever:
@@ -136,6 +136,16 @@ class BookMindRetriever:
         vec = np.array([response.data[0].embedding], dtype=np.float32)
         faiss.normalize_L2(vec)
         return vec
+
+    def embed_queries(self, queries: list) -> np.ndarray:
+        """여러 쿼리를 API 호출 1번으로 임베딩 (MultiQuery용, 왕복 횟수 절감)"""
+        response = self.client.embeddings.create(
+            model="text-embedding-3-small",
+            input=[q[:8000] for q in queries]
+        )
+        vecs = np.array([d.embedding for d in response.data], dtype=np.float32)
+        faiss.normalize_L2(vecs)
+        return vecs
 
     # =========================================================
     # 제목 추출 (info 쿼리용)
@@ -252,7 +262,7 @@ class BookMindRetriever:
     # =========================================================
     # 메인 검색 (FAISS → [MultiQuery] → Reranker)
     # =========================================================
-    def search(self, query_embedding: np.ndarray, intent: str,
+    def search(self, query_embedding: np.ndarray = None, intent: str = "general",
                top_k: int = 5, use_multi_query: bool = False,
                original_query: str = "") -> tuple:
 
@@ -272,18 +282,17 @@ class BookMindRetriever:
 
         # ── general 질문: 단일 또는 MultiQuery + Reranker
         if use_multi_query and original_query:
-            queries = self.generate_multi_queries(original_query, n=3)
+            queries = [q for q in self.generate_multi_queries(original_query, n=3) if q.strip()]
             print(f"   MultiQuery: {len(queries)}개 쿼리 생성")
             for i, q in enumerate(queries):
                 print(f"     [{i}] {q}")
 
+            query_embeddings = self.embed_queries(queries)  # API 호출 1번으로 일괄 임베딩
+
             pid_scores = {}
             pid_chunks = {}
-            for q in queries:
-                if not q.strip():
-                    continue
-                emb = self.embed_query(q)
-                cks, scs = self._search_single(emb, intent, top_k=rerank_k)
+            for emb in query_embeddings:
+                cks, scs = self._search_single(emb.reshape(1, -1), intent, top_k=rerank_k)
                 for chunk, score in zip(cks, scs):
                     pid = chunk.get("parent_doc_id", "")
                     if pid:

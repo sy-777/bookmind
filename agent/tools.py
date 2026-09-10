@@ -132,9 +132,9 @@ def recommend_books(query: str) -> str:
     print(f"\n[recommend_books] 원본 쿼리: {query}")
     print(f"[recommend_books] 보강된 쿼리: {enriched_query[:100]}")
 
-    query_embedding = _embed(enriched_query)
+    # MultiQuery 경로(top_k=5 + original_query 지정)에서는 재작성된 쿼리들만
+    # 임베딩해 검색하므로, 여기서 별도로 enriched_query를 임베딩할 필요가 없다.
     chunks, scores  = _retriever.search(
-        query_embedding,
         intent="general",
         top_k=5,
         use_multi_query=True,
