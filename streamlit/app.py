@@ -9,7 +9,7 @@ BookMind Streamlit UI
     - 사이드바: 책 검색, 독후감 작성/목록, 독서 통계
     - 채팅: 책 상세 보기 expander
 
-실행: streamlit run app.py
+실행: streamlit run streamlit/app.py
 
 주요 처리 내용:
     - data/faiss/chunks.json을 캐시(@st.cache_resource)하여 앱 실행 중
@@ -24,18 +24,22 @@ BookMind Streamlit UI
 """
 
 import os
+import sys
 import json
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import streamlit as st
 from openai import OpenAI
 from dotenv import load_dotenv
-from agent.graph import invoke
+from agent.graph import invoke_stream
 from agent.tools import _load_records, _save_records
 
 load_dotenv()
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-BASE_DIR      = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR      = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 USER_DATA_DIR = os.path.join(BASE_DIR, "data", "user")
 FAISS_CHUNKS  = os.path.join(BASE_DIR, "data", "faiss", "chunks.json")
 os.makedirs(USER_DATA_DIR, exist_ok=True)
@@ -307,17 +311,11 @@ if prompt := st.chat_input("읽고 싶은 책이나 기분을 말씀해주세요
 
     with st.chat_message("assistant"):
         with st.spinner("생각하는 중..."):
-            result    = invoke(prompt, chat_history=st.session_state.chat_history)
-            answer    = result["answer"]
-            tool_used = result.get("tool_used", "")
+            stream, stream_result = invoke_stream(prompt, chat_history=st.session_state.chat_history)
 
-        # 스트리밍 출력
-        placeholder = st.empty()
-        displayed   = ""
-        for char in answer:
-            displayed += char
-            placeholder.markdown(displayed + "▌")
-        placeholder.markdown(displayed)
+        # 실제 토큰 스트리밍 출력
+        answer    = st.write_stream(stream)
+        tool_used = stream_result.tool_used
 
         # Tool 뱃지
         if tool_used:
