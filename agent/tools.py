@@ -212,6 +212,7 @@ def get_book_detail(title: str) -> str:
         query_embedding,
         intent="info",
         top_k=3,
+        original_query=title,
     )
 
     if not chunks:
