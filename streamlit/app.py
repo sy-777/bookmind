@@ -74,6 +74,16 @@ st.markdown("""
         border-left: 3px solid #E8DAEF;
         font-size: 0.85rem;
     }
+    .book-cover-placeholder {
+        width: 100%; max-width: 160px; aspect-ratio: 1 / 1;
+        background: #FFFFFF;
+        border: 2px solid #BDBDBD;
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        text-align: center;
+        color: #9E9E9E;
+        font-size: 0.95rem;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -135,11 +145,10 @@ def show_book_detail(title: str, chunks: list, use_tabs: bool = True):
         meta  = chunk.get("metadata", {})
         col1, col2 = st.columns([1, 2])
         with col1:
-            img = meta.get("image", "")
-            if img:
-                st.image(img, width=120)
-            else:
-                st.markdown("📚")
+            st.markdown(
+                '<div class="book-cover-placeholder">Book Cover</div>',
+                unsafe_allow_html=True,
+            )
         with col2:
             st.markdown(f"**{chunk.get('title', '')}**")
             st.caption(f"저자: {meta.get('author', '')} | 출판사: {meta.get('publisher', '')}")
@@ -329,9 +338,10 @@ if prompt := st.chat_input("읽고 싶은 책이나 기분을 말씀해주세요
 
             # 다양한 패턴으로 제목 추출
             patterns = [
-                r'《(.+?)》',                      # 《오만과 편견》
-                r'["""](.+?)["""]',               # "오만과 편견"
-                r'\*{1,3}["""]?(.+?)["""]?\*{1,3}', # **오만과 편견**
+                r'《(.+?)》',                      
+                r'["""](.+?)["""]',               
+                r'\*{1,3}["""]?(.+?)["""]?\*{1,3}', 
+                r"'(.+?)'",                       
             ]
             book_title = None
             for pattern in patterns:
